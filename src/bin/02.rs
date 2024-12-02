@@ -68,9 +68,7 @@ pub fn part_one(input: &str) -> Option<u32> {
     let reports = parse_reports(input);
     let mut ok_count = 0;
 
-    let mut i = 0;
     for report in reports {
-        i = i + 1;
         if is_safe(&report) {
             ok_count = ok_count + 1;
         }
@@ -82,9 +80,7 @@ pub fn part_two(input: &str) -> Option<u32> {
     let reports = parse_reports(input);
     let mut ok_count = 0;
 
-    let mut i = 0;
     for report in reports {
-        i = i + 1;
         if is_safe(&report) {
             ok_count = ok_count + 1;
         } else {
