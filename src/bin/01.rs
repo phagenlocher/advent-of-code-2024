@@ -10,7 +10,7 @@ fn get_lists(input: &str) -> (Vec<u32>, Vec<u32>) {
 
     let re = Regex::new(r"([0-9]+)\s+([0-9]+)").unwrap();
     for line in lines {
-        if line.len() == 0 {
+        if line.is_empty() {
             continue;
         }
         let Some(groups) = re.captures(line) else {
@@ -35,9 +35,9 @@ pub fn part_one(input: &str) -> Option<u32> {
 
     for (a, b) in firsts.iter().zip(seconds.iter()) {
         if a > b {
-            result = result + (a - b);
+            result += a - b;
         } else {
-            result = result + (b - a);
+            result += b - a;
         }
     }
 
@@ -50,7 +50,7 @@ pub fn part_two(input: &str) -> Option<u32> {
     for a in firsts.iter() {
         for b in seconds.iter() {
             if a == b {
-                result = result + a;
+                result += a;
             }
         }
     }

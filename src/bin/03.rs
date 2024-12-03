@@ -27,7 +27,7 @@ pub fn part_two(input: &str) -> Option<u32> {
 
             if do_stmt_opt.is_some() {
                 mul_enabled = true;
-                return 0;
+                0
             } else if dont_stmt_opt.is_some() {
                 mul_enabled = false;
                 return 0;
