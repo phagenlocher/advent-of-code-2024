@@ -21,6 +21,7 @@ checksum = "f26201604c87b1e01bd3d98f8d5d9a8fcbb815e8cedb41ffccbeb4bf593a35fe"
 name = "advent_of_code"
 version = "0.11.0"
 dependencies = [
+ "cartesian",
  "chrono",
  "dhat",
  "pico-args",
@@ -84,6 +85,12 @@ name = "bumpalo"
 version = "3.14.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7f30e7476521f6f8af1a1c4c0b8cc94f0bee37d91763d0ca2665f299b6cd8aec"
+
+[[package]]
+name = "cartesian"
+version = "0.2.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c0ed5b66eccb9a1fe9ff1489ea73e43016c0b500160ae9ecd089644458ad495f"
 
 [[package]]
 name = "cc"
