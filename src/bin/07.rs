@@ -1,3 +1,5 @@
+use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
+
 advent_of_code::solution!(7);
 
 struct MultiSetGenerator<E> {
@@ -122,7 +124,7 @@ fn solve_with(operations: &Vec<Operation>, input: &str) -> Option<u64> {
     let equations = parse_equations(input);
     Some(
         equations
-            .iter()
+            .par_iter()
             .filter_map(|equation| {
                 if validate_equation(equation, operations) {
                     Some(equation.result)

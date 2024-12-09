@@ -1,5 +1,7 @@
 use std::collections::HashMap;
 
+use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
+
 advent_of_code::solution!(6);
 
 #[derive(Copy, Clone, PartialEq)]
@@ -166,9 +168,9 @@ fn count_cycle_causing_obstacles(
     let (orig_x, orig_y) = (guard.x_pos, guard.y_pos);
     let seen_steps = simulate_walking_path(puzzle_map, guard).seen_steps();
     seen_steps
-        .keys()
-        .filter(|(x, y)| *x != orig_x || *y != orig_y)
-        .map(|(x, y)| {
+        .par_iter()
+        .filter(|((x, y), _)| *x != orig_x || *y != orig_y)
+        .map(|((x, y), _)| {
             let mut new_puzzle_map = puzzle_map.clone();
             new_puzzle_map
                 .entry((*x, *y))
