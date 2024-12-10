@@ -32,7 +32,7 @@ impl Position {
 struct HeightMap(HashMap<Position, Height>);
 
 impl HeightMap {
-    fn get_neighbhors(&self, pos: Position) -> Vec<(Position, Height)> {
+    fn get_neighbhors(&self, pos: &Position) -> Vec<(Position, Height)> {
         [
             pos.moved(-1, 0),
             pos.moved(1, 0),
@@ -44,8 +44,8 @@ impl HeightMap {
         .collect()
     }
 
-    fn get_height(&self, pos: Position) -> Option<Height> {
-        self.0.get(&pos).map(|height| *height)
+    fn get_height(&self, pos: &Position) -> Option<Height> {
+        self.0.get(pos).map(|height| *height)
     }
 
     fn start_positions(&self) -> Vec<Position> {
@@ -87,12 +87,12 @@ fn parse_input(input: &str) -> HeightMap {
 
 fn get_trailhead_rating(
     height_map: &HeightMap,
-    start: Position,
+    start: &Position,
     seen: &mut HashSet<Position>,
     keep_seen: bool,
 ) -> u32 {
     let curr_height_opt = height_map.get_height(start);
-    seen.insert(start);
+    seen.insert(*start);
 
     match curr_height_opt {
         None => panic!("Invalid position: {start:?}"),
@@ -109,7 +109,7 @@ fn get_trailhead_rating(
                 let mut seen_new = seen.clone();
                 result += get_trailhead_rating(
                     height_map,
-                    *pos,
+                    pos,
                     if keep_seen { seen } else { &mut seen_new },
                     keep_seen,
                 )
@@ -125,7 +125,7 @@ pub fn part_one(input: &str) -> Option<u32> {
         height_map
             .start_positions()
             .iter()
-            .map(|pos| get_trailhead_rating(&height_map, *pos, &mut HashSet::new(), true))
+            .map(|pos| get_trailhead_rating(&height_map, pos, &mut HashSet::new(), true))
             .sum(),
     )
 }
@@ -136,7 +136,7 @@ pub fn part_two(input: &str) -> Option<u32> {
         height_map
             .start_positions()
             .iter()
-            .map(|pos| get_trailhead_rating(&height_map, *pos, &mut HashSet::new(), false))
+            .map(|pos| get_trailhead_rating(&height_map, pos, &mut HashSet::new(), false))
             .sum(),
     )
 }
