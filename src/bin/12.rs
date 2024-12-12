@@ -128,7 +128,7 @@ pub fn part_one(input: &str) -> Option<usize> {
     )
 }
 
-pub fn part_two(input: &str) -> Option<usize> {
+pub fn part_two(_input: &str) -> Option<usize> {
     None
 }
 
@@ -154,11 +154,5 @@ mod tests {
             "examples", DAY, 2,
         ));
         assert_eq!(result, Some(1930));
-    }
-
-    #[test]
-    fn test_part_two() {
-        let result = part_two(&advent_of_code::template::read_file("examples", DAY));
-        assert_eq!(result, None);
     }
 }
