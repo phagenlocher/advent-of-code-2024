@@ -1,3 +1,4 @@
+use std::collections::HashMap;
 use std::collections::HashSet;
 
 advent_of_code::solution!(12);
@@ -9,6 +10,27 @@ struct Position {
 }
 
 impl Position {
+    fn neighbors(&self) -> [Position; 4] {
+        [
+            Position {
+                x: self.x + 1,
+                y: self.y,
+            },
+            Position {
+                x: self.x - 1,
+                y: self.y,
+            },
+            Position {
+                x: self.x,
+                y: self.y + 1,
+            },
+            Position {
+                x: self.x,
+                y: self.y - 1,
+            },
+        ]
+    }
+
     fn is_neighbor(&self, other: &Self) -> bool {
         if self.x == other.x {
             [other.y - 1, other.y + 1].contains(&self.y)
@@ -44,34 +66,10 @@ impl Plot {
             })
             .sum()
     }
-
-    fn should_contain(&self, other: &Self) -> bool {
-        if self.plant != other.plant {
-            false
-        } else {
-            self.positions.iter().any(|self_pos| {
-                other
-                    .positions
-                    .iter()
-                    .any(|other_pos| self_pos.is_neighbor(other_pos))
-            })
-        }
-    }
-
-    fn add_plot(&self, other: &Self) -> Plot {
-        Plot {
-            plant: self.plant,
-            positions: self
-                .positions
-                .union(&other.positions)
-                .map(|pos| *pos)
-                .collect(),
-        }
-    }
 }
 
-fn parse_input(input: &str) -> Vec<Plot> {
-    let mut result = Vec::new();
+fn parse_input(input: &str) -> HashMap<char, Vec<Position>> {
+    let mut result = HashMap::new();
 
     for (y, line) in input.split("\n").enumerate() {
         for (x, c) in line.chars().enumerate() {
@@ -79,42 +77,55 @@ fn parse_input(input: &str) -> Vec<Plot> {
                 x: x as i32,
                 y: y as i32,
             };
-            result.push(Plot {
-                plant: c,
-                positions: HashSet::from([pos]),
-            });
+            result
+                .entry(c)
+                .and_modify(|poss: &mut Vec<Position>| poss.push(pos))
+                .or_insert(vec![pos]);
         }
     }
 
     result
 }
 
-fn parse_plots(mut plots: Vec<Plot>) -> Vec<Plot> {
-    // All this index stuff is way to error prone, but I don't know how to do it
-    // without, as I need to immutably borrow to find fitting elements and I need to
-    // mutably borrow to actualy change elements, so I guess indices it is...
-    fn find_next_merge(plots: &Vec<Plot>) -> Option<(usize, usize)> {
-        for (i, plot_a) in plots.iter().enumerate() {
-            for (j, plot_b) in plots[i + 1..].iter().enumerate() {
-                if plot_a.should_contain(plot_b) {
-                    return Some((i, j + i + 1));
-                }
+fn seperate_nbrs(pos: Position, positions: Vec<Position>) -> (HashSet<Position>, Vec<Position>) {
+    let mut frontier = vec![pos];
+    let mut positions: HashSet<Position> = positions.into_iter().collect();
+    let mut result = HashSet::from([pos]);
+
+    while let Some(pos) = frontier.pop() {
+        for nbr in pos.neighbors() {
+            if positions.remove(&nbr) {
+                frontier.push(nbr);
+                result.insert(nbr);
             }
         }
-        None
     }
 
-    // This is unbelievably slow, probably because of all the removal and reallocations
-    loop {
-        match find_next_merge(&plots) {
-            None => return plots,
-            Some((i, j)) => {
-                let plot_b = plots.remove(j);
-                let plot_a = plots.remove(i);
-                plots.push(plot_a.add_plot(&plot_b));
-            }
+    (result, positions.into_iter().collect())
+}
+
+fn seperate_by_fill(mut positions: Vec<Position>) -> Vec<HashSet<Position>> {
+    let mut result = Vec::new();
+
+    while let Some(pos) = positions.pop() {
+        let (nbrs, rest) = seperate_nbrs(pos, positions);
+        result.push(nbrs);
+        positions = rest;
+    }
+
+    result
+}
+
+fn parse_plots(plots: HashMap<char, Vec<Position>>) -> Vec<Plot> {
+    let mut result = Vec::new();
+
+    for (plant, positions) in plots {
+        for positions in seperate_by_fill(positions) {
+            result.push(Plot { plant, positions });
         }
     }
+
+    result
 }
 
 pub fn part_one(input: &str) -> Option<usize> {
@@ -142,10 +153,9 @@ mod tests {
             "examples", DAY, 1,
         ));
         let plots = parse_plots(single_plots);
-        assert_eq!(
-            plots.iter().map(|plot| plot.plant).collect::<Vec<_>>(),
-            vec!['D', 'E', 'A', 'B', 'C']
-        );
+        let mut plants = plots.iter().map(|plot| plot.plant).collect::<Vec<_>>();
+        plants.sort();
+        assert_eq!(plants, vec!['A', 'B', 'C', 'D', 'E']);
     }
 
     #[test]
