@@ -1,3 +1,6 @@
+use std::collections::HashMap;
+use ThisOrThat::*;
+
 advent_of_code::solution!(11);
 
 fn parse_input(input: &str) -> Vec<u64> {
@@ -15,8 +18,6 @@ enum ThisOrThat<A, B> {
     This(A),
     That(B),
 }
-
-use ThisOrThat::*;
 
 type BlinkResult = ThisOrThat<u64, (u64, u64)>;
 
@@ -37,25 +38,57 @@ fn blink(stone: u64) -> BlinkResult {
     }
 }
 
-fn blinks_row(n: u32, row: &Vec<u64>) -> usize {
-    fn blink_row(row: Vec<u64>) -> Vec<u64> {
-        let mut result = Vec::new();
-        for stone in row.iter() {
-            match blink(*stone) {
-                This(new_stone) => result.push(new_stone),
-                That((fst, snd)) => {
-                    result.push(fst);
-                    result.push(snd);
-                }
+fn blinks(
+    n: u32,
+    stone: u64,
+    cache: HashMap<(u32, u64), usize>,
+) -> (usize, HashMap<(u32, u64), usize>) {
+    if n == 0 {
+        return (1, cache);
+    }
+
+    match blink(stone) {
+        This(x) => {
+            if let Some(cached_result) = cache.get(&(n - 1, x)) {
+                (*cached_result, cache)
+            } else {
+                let (count, mut new_cache) = blinks(n - 1, x, cache);
+                new_cache.insert((n - 1, x), count);
+                (count, new_cache)
             }
         }
-        result
+
+        That((fst, snd)) => {
+            let (count1, fst_cache) = if let Some(cached_result) = cache.get(&(n - 1, fst)) {
+                (*cached_result, cache)
+            } else {
+                let (count, mut new_cache) = blinks(n - 1, fst, cache);
+                new_cache.insert((n - 1, fst), count);
+                (count, new_cache)
+            };
+            let (count2, snd_cache) = if let Some(cached_result) = fst_cache.get(&(n - 1, snd)) {
+                (*cached_result, fst_cache)
+            } else {
+                let (count, mut new_cache) = blinks(n - 1, snd, fst_cache);
+                new_cache.insert((n - 1, snd), count);
+                (count, new_cache)
+            };
+            (count1 + count2, snd_cache)
+        }
     }
-    let mut result = row.to_vec();
-    for _ in 0..n {
-        result = blink_row(result)
+}
+
+fn blinks_row(n: u32, row: &Vec<u64>) -> usize {
+    let mut cache = HashMap::new();
+    let mut result = 0;
+
+    for stone in row {
+        let (count, new_cache) = blinks(n, *stone, cache);
+        cache = new_cache;
+        result += count
     }
-    result.len()
+
+    result
 }
 
 pub fn part_one(input: &str) -> Option<usize> {
@@ -63,14 +96,9 @@ pub fn part_one(input: &str) -> Option<usize> {
     Some(blinks_row(25, &row))
 }
 
-pub fn part_two(_input: &str) -> Option<usize> {
-    /*
-        I wanted to do some caching of computations here, but I can't figure out how to
-        pass a hashmap that I need to borrow mutably and immutably...
-    */
-    //let row = parse_input(input);
-    // Some(blinks_row(75, &row))
-    None
+pub fn part_two(input: &str) -> Option<usize> {
+    let row = parse_input(input);
+    Some(blinks_row(75, &row))
 }
 
 #[cfg(test)]
