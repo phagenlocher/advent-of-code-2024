@@ -66,6 +66,37 @@ impl Plot {
             })
             .sum()
     }
+
+    fn sides(&self) -> usize {
+        /*
+           The idea here is to seperate the positions that have a border in a certain direction
+           (top, bottom, left, right) and then seperate them into sets of neighbors. The amount
+           of sets is amount of the borders in that direction (with the length of the sets)
+           being the length of each individual border.
+        */
+        let create_border_positions = |offset_x, offset_y| {
+            self.positions
+                .clone()
+                .iter()
+                .filter_map(|pos| {
+                    if !self.positions.contains(&Position {
+                        x: pos.x + offset_x,
+                        y: pos.y + offset_y,
+                    }) {
+                        Some(*pos)
+                    } else {
+                        None
+                    }
+                })
+                .collect::<Vec<_>>()
+        };
+
+        let top_lines = seperate_by_fill(create_border_positions(-1, 0)).len();
+        let bot_lines = seperate_by_fill(create_border_positions(1, 0)).len();
+        let lef_lines = seperate_by_fill(create_border_positions(0, -1)).len();
+        let rig_lines = seperate_by_fill(create_border_positions(0, 1)).len();
+        top_lines + bot_lines + lef_lines + rig_lines
+    }
 }
 
 fn parse_input(input: &str) -> HashMap<char, Vec<Position>> {
@@ -139,8 +170,10 @@ pub fn part_one(input: &str) -> Option<usize> {
     )
 }
 
-pub fn part_two(_input: &str) -> Option<usize> {
-    None
+pub fn part_two(input: &str) -> Option<usize> {
+    let map = parse_input(input);
+    let plots = parse_plots(map);
+    Some(plots.iter().map(|plot| plot.area() * plot.sides()).sum())
 }
 
 #[cfg(test)]
@@ -164,5 +197,13 @@ mod tests {
             "examples", DAY, 2,
         ));
         assert_eq!(result, Some(1930));
+    }
+
+    #[test]
+    fn test_part_two() {
+        let result = part_two(&advent_of_code::template::read_file_part(
+            "examples", DAY, 2,
+        ));
+        assert_eq!(result, Some(1206));
     }
 }
