@@ -71,8 +71,8 @@ impl Plot {
         /*
            The idea here is to seperate the positions that have a border in a certain direction
            (top, bottom, left, right) and then seperate them into sets of neighbors. The amount
-           of sets is amount of the borders in that direction (with the length of the sets)
-           being the length of each individual border.
+           of sets is the amount of the borders in that direction (with the length of the sets
+           being the length of each individual border).
         */
         let create_border_positions = |offset_x, offset_y| {
             self.positions
