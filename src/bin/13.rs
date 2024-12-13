@@ -58,15 +58,16 @@ fn parse_input(input: &str) -> Vec<Machine> {
 }
 
 /*
-    While this is a graph problem looking at the nodes in the resulting graph looks like this:
+    When interpreting the choices of pressing buttons as a graph, looking at the nodes
+    in the resulting graph looks like this:
 
-                      Depth
-           0        --- 0
-         /   \
-        A     B     --- 1
-      /   \ /   \
-    A+A   A+B   B+B --- 2
-  ...  ...    ...  ...
+                        Depth
+             0        --- 0
+           /   \
+          A     B     --- 1
+        /   \ /   \
+      A+A   A+B   B+B --- 2
+    ...  ...    ...  ...
 
     For each depth d there are exactly d+1 unique possibilities for sums with d summands.
     The sums are formed by producing all combinations of As and Bs as summands. Therefore,
@@ -128,6 +129,9 @@ pub fn part_one(input: &str) -> Option<u32> {
 }
 
 pub fn part_two(_input: &str) -> Option<u32> {
+    /*
+       Sadly, the graph solution breaks down here...
+    */
     None
 }
 
