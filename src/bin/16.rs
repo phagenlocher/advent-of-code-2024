@@ -204,7 +204,8 @@ pub fn part_one(input: &str) -> Option<u32> {
     })
 }
 
-pub fn part_two(_input: &str) -> Option<u32> {
+pub fn part_two(input: &str) -> Option<u32> {
+    let maze = parse_input(input);
     None
 }
 
@@ -217,10 +218,10 @@ mod tests {
         let mut field = Field::new(Vec2 { x: 0, y: 0 });
         field.update(100, Direction::Horizontal);
         assert_eq!(field.cost(Direction::Horizontal), 100);
-        assert_eq!(field.cost(Direction::Vertical), 190);
+        assert_eq!(field.cost(Direction::Vertical), 1100);
         field.update(110, Direction::Horizontal);
         assert_eq!(field.cost(Direction::Horizontal), 100);
-        assert_eq!(field.cost(Direction::Vertical), 190);
+        assert_eq!(field.cost(Direction::Vertical), 1100);
         field.update(110, Direction::Vertical);
         assert_eq!(field.cost(Direction::Horizontal), 100);
         assert_eq!(field.cost(Direction::Vertical), 110);
@@ -252,7 +253,9 @@ mod tests {
 
     #[test]
     fn test_part_two() {
-        let result = part_two(&advent_of_code::template::read_file("examples", DAY));
+        let result = part_two(&advent_of_code::template::read_file_part(
+            "examples", DAY, 1,
+        ));
         assert_eq!(result, None);
     }
 }
