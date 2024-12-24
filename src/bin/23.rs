@@ -121,13 +121,12 @@ impl<N: Eq + Ord + Hash + Clone> Cluster<N> {
             .collect()
     }
 
-    fn subclusters_of_size(&self, count: usize) -> HashSet<Cluster<N>> {
+    fn subclusters_of_size(&self, count: usize) -> impl Iterator<Item = Cluster<N>> {
         self.elems
             .clone()
             .into_iter()
             .combinations(count)
             .map(|combs| combs.into_iter().collect::<Cluster<_>>())
-            .collect::<HashSet<Cluster<_>>>()
     }
 }
 
@@ -176,17 +175,8 @@ fn fully_connected_components<N>(g: &UnGraphMap<N, ()>) -> impl Iterator<Item = 
 where
     N: Debug + PartialEq + Eq + Ord + Hash + Clone + Copy,
 {
-    fn count_elem<T: PartialEq>(vec: &Vec<T>, elem: &T) -> usize {
-        vec.iter().filter(|x| *x == elem).count()
-    }
-
     let mut cluster_count_map: HashMap<Cluster<_>, usize> = HashMap::new();
-    for cluster in get_clusters(g)
-        .collect::<Vec<_>>()
-        .iter()
-        .map(|c| c.subclusters())
-        .flatten()
-    {
+    for cluster in get_clusters(g).map(|c| c.subclusters()).flatten() {
         cluster_count_map
             .entry(cluster)
             .and_modify(|count| *count += 1)
@@ -231,8 +221,8 @@ mod tests {
     #[test]
     fn test_all_pairs() {
         let input = vec![1, 2, 3];
-        let result = AllPairs::all_pairs(input.iter()).collect::<Vec<_>>();
-        assert_eq!(result, vec![(&1, &2), (&1, &3), (&2, &3)]);
+        let result = AllPairs::all_pairs(input.into_iter()).collect::<Vec<_>>();
+        assert_eq!(result, vec![(1, 2), (1, 3), (2, 3)]);
     }
 
     #[test]
